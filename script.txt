@@ -1,0 +1,34 @@
+pipeline {
+  environment {
+    registry = "karthilinux91/simple_webpage"
+    registryCredential = 'Docker_ID'
+    dockerImage = ''
+    VERSION="$BUILD_NUMBER"
+  }
+  agent { node { label 'docker_node'  }}
+
+  stages {
+    
+    stage('Cloning Git') {
+      steps {          git 'https://github.com/karthilinux91/Demo_project1.git'       }
+    }
+    
+
+
+    stage('Building image') {
+      steps{
+        script {
+          dockerImage = docker.build registry + ":$BUILD_NUMBER"
+        }
+      }
+    }
+
+    stage('Push image to Container Registry') {
+          steps{
+        script {
+          docker.withRegistry( '',registryCredential) {
+            dockerImage.push()
+          }
+        }
+      }
+    }
